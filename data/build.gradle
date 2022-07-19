@@ -1,0 +1,75 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-kapt'
+}
+
+apply from: '../dependencies.gradle'
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 32
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField("String", "BASE_URL", "\"https://v6.exchangerate-api.com/v6\"")
+        buildConfigField("String", "API_KEY", "\"8adfe79bddbcfb77f3255acd\"")
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+
+    implementation project(path: ':domain')
+    implementation androidx.coreKtx
+    implementation androidx.appCompat
+
+    //Coroutines
+    implementation kotlin.kotlinxCoroutines
+
+    //DI Hilt
+    implementation hilt.hiltAndroid
+    kapt hilt.kaptHiltAndroidCompiler
+
+    //Network
+    implementation network.retrofit
+    implementation network.retrofitGsonConverter
+    implementation network.networkResponseAdapter
+    implementation network.okhttp
+    implementation network.okhttpLoggingInterceptor
+
+    //Room Database
+    implementation androidx.roomDb
+    kapt androidx.kaptRoomDb
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation androidx.roomKtx
+
+    testImplementation testing.unitTestingCore
+    // Coroutine Testing
+    testImplementation testing.unitTestingCoroutines
+    testImplementation testing.unitTestingMockitoCore
+
+    testImplementation testing.unitTestingJunit
+    androidTestImplementation  testing.uiTestingJunit
+    androidTestImplementation  testing.uiTestingEspresso
+}

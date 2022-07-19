@@ -1,0 +1,28 @@
+package com.example.data.repository
+
+
+import com.example.data.remote.CharsRemoteDataSource
+import apps.hm.mhchars.domain.model.CharacterEntity
+import com.example.domain.model.Output
+import apps.hm.mhchars.domain.repository.CharsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
+
+/**
+ * Implementation of CharsRepository
+ * @param charsRemoteDataSource the object of remote data source
+ */
+internal class CharsRepositoryImpl @Inject constructor(
+    private val charsRemoteDataSource: CharsRemoteDataSource
+) : CharsRepository {
+    override suspend fun fetchCharacters(): Flow<Output<List<CharacterEntity>>> {
+        return flow {
+            emit(Output.loading())
+            val result = charsRemoteDataSource.fetchCharacters()
+            emit(result)
+        }.flowOn(Dispatchers.IO)
+    }
+}
