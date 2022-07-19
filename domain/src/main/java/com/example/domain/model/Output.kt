@@ -5,7 +5,7 @@ package com.example.domain.model
  */
 sealed class Output<out R> {
     data class Success<T>(val data: T?) : Output<T>()
-    data class Error(val exception: Exception) : Output<Nothing>()
+    data class Error(val exception: String) : Output<Nothing>()
     object Loading : Output<Nothing>()
 
     companion object {
@@ -14,7 +14,7 @@ sealed class Output<out R> {
         }
 
         fun <T> error(error: Exception): Output<T> {
-            return Error(error)
+            return Error(error.localizedMessage.orEmpty())
         }
 
         fun <T> loading(data: T? = null): Output<T> {

@@ -21,17 +21,13 @@ open class BaseViewModel : ViewModel() {
     val error: LiveData<Event<Exception>>
         get() = _error
 
-    protected open fun <T> load(
-        loading: LoadingCounter? = loadingState,
+    protected open fun<T> networkLoad(
         call: suspend () -> T,
+        onSuccess: (T) -> Unit,
+        onError: (String) -> Unit = {},
     ) = viewModelScope.launch {
-        loading?.addLoader()
+        loadingState.addLoader()
 
-        runCatching { call() }
-            .onFailure {
-                _error.value = Event(Exception(it))
-            }
-
-        loading?.removeLoader()
+        loadingState.removeLoader()
     }
 }

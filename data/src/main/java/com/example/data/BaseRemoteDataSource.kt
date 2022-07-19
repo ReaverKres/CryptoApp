@@ -46,9 +46,9 @@ abstract class BaseRemoteDataSource constructor(
         return try {
             response.errorBody()?.let {
                 converter.convert(it)
-            } ?: Output.Error(UnknownException())
+            } ?: Output.Error(UnknownException().toString())
         } catch (e: IOException) {
-            Output.Error(e)
+            Output.Error(e.toString())
         }
     }
 }

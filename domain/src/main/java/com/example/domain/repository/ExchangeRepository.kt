@@ -1,10 +1,9 @@
 package com.example.domain.repository
 
-import com.example.domain.model.DataFetchError
 import com.example.domain.model.ExchangeResponse
-import com.example.domain.model.NetworkResult
+import kotlinx.coroutines.flow.Flow
 
 
 interface ExchangeRepository {
-    suspend fun getRatesByCurrency(currency: String): NetworkResult<ExchangeResponse, DataFetchError>
+    suspend fun getRatesByCurrency(currency: String): Flow<ExchangeResponse>
 }
