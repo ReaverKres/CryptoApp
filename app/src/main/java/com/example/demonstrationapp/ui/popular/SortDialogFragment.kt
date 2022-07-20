@@ -26,7 +26,7 @@ class SortDialogFragment() : DialogFragment() {
         return AlertDialog.Builder(requireContext())
             .setSingleChoiceItems(
                 arrayOf("По умолчанию", "По алфавиту", "По значению"),
-                0
+                typeOfSort
             ) { _, pos ->
                 typeOfSort = pos
             }

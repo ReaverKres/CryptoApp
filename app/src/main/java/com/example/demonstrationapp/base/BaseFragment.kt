@@ -42,7 +42,7 @@ abstract class BaseFragment<VB : ViewDataBinding>(
 
     val binding get() = _binding!!
 
-    abstract val viewModel: BaseViewModel?
+//    abstract val viewModel: BaseViewModel?
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,17 +57,17 @@ abstract class BaseFragment<VB : ViewDataBinding>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel?.apply {
-            isLoading.observe(viewLifecycleOwner) {
-
-            }
-
-            viewModel?.error?.observeEvent(viewLifecycleOwner) { exception ->
-                if (exception.message?.isNotEmpty() == true) {
-                    toast(exception.message.orEmpty())
-                }
-            }
-        }
+//        viewModel?.apply {
+//            isLoading.observe(viewLifecycleOwner) {
+//
+//            }
+//
+//            viewModel?.error?.observeEvent(viewLifecycleOwner) { exception ->
+//                if (exception.message?.isNotEmpty() == true) {
+//                    toast(exception.message.orEmpty())
+//                }
+//            }
+//        }
     }
 
     override fun onDestroyView() {

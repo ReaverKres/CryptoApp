@@ -86,6 +86,8 @@ dependencies {
     //Glide
     implementation others.picasso
 
+    implementation "com.facebook.shimmer:shimmer:0.5.0"
+
     // optional - Test helpers for LiveData
     testImplementation testing.unitTestingCore
 

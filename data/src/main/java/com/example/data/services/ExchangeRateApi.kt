@@ -1,7 +1,6 @@
 package com.example.data.services
 
-import com.example.domain.model.ExchangeResponse
-import com.haroldadmin.cnradapter.NetworkResponse
+import com.example.data.model.ExchangeResponse
 import kotlinx.coroutines.flow.Flow
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -9,7 +8,7 @@ import retrofit2.http.Path
 interface ExchangeRateApi {
 
     @GET("latest/{currency}")
-    suspend fun getExchangeRatesByCurrency(@Path("currency") currency: String): Flow<ExchangeResponse>
+    fun getExchangeRatesByCurrency(@Path("currency") currency: String): Flow<ExchangeResponse>
 }
 
 data class ApiError(

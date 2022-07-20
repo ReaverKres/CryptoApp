@@ -2,7 +2,7 @@ package com.example.demonstrationapp.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.demonstrationapp.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -16,7 +16,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_nav)
-        val navController = findNavController(R.id.nav_host_container)
+        val host = supportFragmentManager
+            .findFragmentById(R.id.nav_host_container) as NavHostFragment
+        val navController = host.navController
 
         bottomNavigationView.setupWithNavController(navController)
     }

@@ -18,8 +18,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
 
-        buildConfigField("String", "BASE_URL", "\"https://v6.exchangerate-api.com/v6\"")
-        buildConfigField("String", "API_KEY", "\"8adfe79bddbcfb77f3255acd\"")
+        buildConfigField("String", "BASE_URL", "\"https://v6.exchangerate-api.com/v6/\"")
+        buildConfigField("String", "API_KEY", "\"8adfe79bddbcfb77f3255acd/\"")
     }
 
     buildTypes {
@@ -38,8 +38,6 @@ android {
 }
 
 dependencies {
-
-    implementation project(path: ':domain')
     implementation androidx.coreKtx
     implementation androidx.appCompat
 
@@ -63,6 +61,8 @@ dependencies {
 
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation androidx.roomKtx
+
+    implementation 'com.github.MohammadSianaki:Retrofit2-Flow-Call-Adapter:0.2.0'
 
     testImplementation testing.unitTestingCore
     // Coroutine Testing

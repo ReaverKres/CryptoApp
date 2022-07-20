@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.demonstrationapp.di
+package com.example.domain.di
 
+import com.example.domain.di.DefaultDispatcher
+import com.example.domain.di.IoDispatcher
+import com.example.domain.di.MainDispatcher
+import com.example.domain.di.MainImmediateDispatcher
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

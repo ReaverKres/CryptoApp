@@ -1,11 +1,12 @@
 package com.example.data.di
 
-import com.example.data.services.ApiService
 import com.example.data.BuildConfig
+import com.example.data.services.ExchangeRateApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import me.sianaki.flowretrofitadapter.FlowCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -36,12 +37,13 @@ class NetworkModule() {
         return Retrofit.Builder()
             .baseUrl("${BuildConfig.BASE_URL}${BuildConfig.API_KEY}")
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(FlowCallAdapterFactory.create())
             .client(okHttpClient)
             .build()
     }
 
     @Provides
-    fun provideApiService(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
+    fun provideExchangeApiService(retrofit: Retrofit): ExchangeRateApi {
+        return retrofit.create(ExchangeRateApi::class.java)
     }
 }

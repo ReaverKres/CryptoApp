@@ -1,19 +1,18 @@
-package com.example.demonstrationapp.ui
+package com.example.demonstrationapp.ui.popular
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.demonstrationapp.base.BaseViewModel
-import com.example.domain.model.ExchangeResponse
-import com.example.domain.model.Output
+import com.example.domain.model.ExchangeEntity
+import com.example.domain.model.OutputState
+import com.example.domain.model.dto.Currencies
+import com.example.domain.model.dto.Currency
 import com.example.domain.usecase.GetRatesNetworkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,22 +20,34 @@ class PopularViewModel @Inject constructor(
     private val getRatesNetworkUseCase: GetRatesNetworkUseCase
 ) : BaseViewModel() {
 
-    private val _data = MutableLiveData<Output<ExchangeResponse>>()
-    val data: LiveData<Output<ExchangeResponse>> = _data
+    private val _data = MutableLiveData<ExchangeEvent>()
+    val data: LiveData<ExchangeEvent> = _data
+
+    var selectedSort = 0
 
     init {
         getExchangeData()
     }
 
+    sealed class ExchangeEvent {
+        class Success(val result: Currencies) : ExchangeEvent()
+        class Failure(val errorText: String) : ExchangeEvent()
+        object Loading : ExchangeEvent()
+        object Empty : ExchangeEvent()
+    }
+
     fun getExchangeData(baseCurrency: String = "USD") {
         viewModelScope.launch {
-            _data.postValue(Output.Loading)
+            _data.postValue(ExchangeEvent.Loading)
             getRatesNetworkUseCase.invoke(baseCurrency)
                 .catch { e ->
-                    _data.postValue(Output.error(Exception(e)))
+                    _data.postValue(ExchangeEvent.Failure(e.localizedMessage.orEmpty()))
                 }
-                .collectLatest {
-                    _data.postValue(Output.success(it))
+                .collectLatest { exchange ->
+                    val successData = ExchangeEvent.Success(
+                        Currencies(exchange.baseCode, exchange.getRatesForCurrency(baseCurrency) )
+                    )
+                    _data.postValue(successData)
                 }
         }
     }

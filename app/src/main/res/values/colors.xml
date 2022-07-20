@@ -16,4 +16,7 @@
     <color name="bottom_menu_color">#F3F4F7</color>
     <color name="selected_menu_color">#352ad1</color>
     <color name="unselected_menu_color">#8B95A9</color>
+
+    <color name="shimmerBackgroundColor">#E0E0E0</color>
+    <color name="shimmerColor">#E0E0E0</color>
 </resources>
