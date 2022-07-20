@@ -5,11 +5,11 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/popularFragment">
 
-<!--    <fragment-->
-<!--        android:id="@+id/favoriteFragment"-->
-<!--        android:name="com.example.exchangeapp.presentation.favorite.FavoriteFragment"-->
-<!--        android:label="fragment_favorite"-->
-<!--        tools:layout="@layout/fragment_favorite" />-->
+    <fragment
+        android:id="@+id/favoriteFragment"
+        android:name="com.example.demonstrationapp.ui.favorite.FavoriteFragment"
+        android:label="fragment_favorite"
+        tools:layout="@layout/fragment_with_recycler" />
     <fragment
         android:id="@+id/popularFragment"
         android:name="com.example.demonstrationapp.ui.popular.PopularFragment"

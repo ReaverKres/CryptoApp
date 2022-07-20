@@ -1,4 +1,4 @@
-package com.example.exchangeapp.db
+package com.example.data.db
 
 import androidx.room.Entity
 

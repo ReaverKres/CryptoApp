@@ -30,7 +30,7 @@ class PopularFragment : BaseFragment<FragmentPopularBinding>(
 
         setFragmentResultListener(SORT_DIALOG_RESULT) { _, bundle ->
             val selectedSort = bundle.getInt(TYPE_OF_SORT)
-            viewModel.selectedSort = selectedSort
+            viewModel.sortList(selectedSort)
         }
     }
 
@@ -39,7 +39,7 @@ class PopularFragment : BaseFragment<FragmentPopularBinding>(
 
         adapter = CurrencyAdapter { name, value ->
             longToast(getString(R.string.save_db, name))
-//                viewModel.saveCurrency(name,value)
+            viewModel.saveCurrency(name,value)
         }
         binding.recycler.adapter = adapter
 

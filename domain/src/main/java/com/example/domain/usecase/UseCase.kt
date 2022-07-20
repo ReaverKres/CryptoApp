@@ -16,10 +16,13 @@
 
 package com.example.domain.usecase
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+
 /**
  * Executes business logic asynchronously.
  */
-abstract class UseCase<in P, R>() {
+abstract class UseCase<in P, R>(private val coroutineDispatcher: CoroutineDispatcher) {
 
     /**
      * Override this to set the code to be executed.
@@ -32,7 +35,9 @@ abstract class UseCase<in P, R>() {
         onComplete: (R) -> Unit
     ) {
 
-        val result = execute(parameters)
-        onComplete(result)
+        withContext(coroutineDispatcher) {
+            val result = execute(parameters)
+            onComplete(result)
+        }
     }
 }
