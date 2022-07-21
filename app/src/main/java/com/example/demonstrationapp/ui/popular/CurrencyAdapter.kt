@@ -2,9 +2,11 @@ package com.example.demonstrationapp.ui.popular
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.demonstrationapp.R
 import com.example.demonstrationapp.databinding.CurrencyItemBinding
 import com.example.demonstrationapp.databinding.ListItemWithShimmerBinding
 import com.example.domain.model.dto.Currency
@@ -12,7 +14,7 @@ import com.example.domain.model.dto.Currency
 class Shimmer()
 
 class CurrencyAdapter(
-    private val clickListener: (String, Double) -> Unit
+    private val clickListener: (Currency) -> Unit
 ) : ListAdapter<Any, RecyclerView.ViewHolder>(ItemComparator()) {
 
     companion object {
@@ -54,12 +56,26 @@ class CurrencyAdapter(
             }
         }
 
-        fun bind(rate: Currency, clickListener: (String, Double) -> Unit) = with(binding) {
+        fun bind(rate: Currency, clickListener: (Currency) -> Unit) = with(binding) {
             title.text = rate.name
             value.text = rate.value.toString()
+            icon.setChecked(rate.isSaved)
             icon.setOnClickListener {
-                clickListener(rate.name, rate.value)
+                clickListener(rate)
             }
+        }
+
+        fun bind(rate: Currency, payloads: List<Any>) {
+            val isSaved = payloads.last() as Boolean
+            binding.icon.setChecked(isSaved)
+        }
+
+        private fun ImageView.setChecked(isChecked: Boolean) {
+            val icon = when (isChecked) {
+                true -> R.drawable.ic_star_white
+                false -> R.drawable.ic_star_blue
+            }
+            setImageResource(icon)
         }
     }
 
@@ -93,6 +109,16 @@ class CurrencyAdapter(
             }
         }
 
+
+        override fun getChangePayload(oldItem: Any, newItem: Any): Any? {
+            return when {
+                oldItem is Currency && newItem is Currency -> {
+                    if(oldItem.isSaved != newItem.isSaved) newItem.isSaved
+                    else super.getChangePayload(oldItem, newItem)
+                }
+                else -> return super.getChangePayload(oldItem, newItem)
+            }
+        }
     }
 
     override fun getItemViewType(position: Int): Int =
@@ -111,6 +137,18 @@ class CurrencyAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is ItemHolder -> holder.bind(currencies[position], clickListener)
+        }
+    }
+
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if(payloads.isNotEmpty() && holder is ItemHolder) {
+            holder.bind(currentList[position] as Currency, payloads)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
         }
     }
 }
