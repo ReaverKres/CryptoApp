@@ -9,9 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.demonstrationapp.R
 import com.example.demonstrationapp.databinding.CurrencyItemBinding
 import com.example.demonstrationapp.databinding.ListItemWithShimmerBinding
+import com.example.demonstrationapp.utils.setCheckedStar
 import com.example.domain.model.dto.Currency
 
-class Shimmer()
+object Shimmer
 
 class CurrencyAdapter(
     private val clickListener: (Currency) -> Unit
@@ -59,23 +60,22 @@ class CurrencyAdapter(
         fun bind(rate: Currency, clickListener: (Currency) -> Unit) = with(binding) {
             title.text = rate.name
             value.text = rate.value.toString()
-            icon.setChecked(rate.isSaved)
+
+            icon.setCheckedStar(rate.isSaved)
             icon.setOnClickListener {
                 clickListener(rate)
             }
         }
 
-        fun bind(rate: Currency, payloads: List<Any>) {
+        fun bind(
+            rate: Currency, payloads: List<Any>,
+            clickListener: (Currency) -> Unit
+        ) {
             val isSaved = payloads.last() as Boolean
-            binding.icon.setChecked(isSaved)
-        }
-
-        private fun ImageView.setChecked(isChecked: Boolean) {
-            val icon = when (isChecked) {
-                true -> R.drawable.ic_star_white
-                false -> R.drawable.ic_star_blue
+            binding.icon.setCheckedStar(isSaved)
+            binding.icon.setOnClickListener {
+                clickListener(rate)
             }
-            setImageResource(icon)
         }
     }
 
@@ -89,7 +89,7 @@ class CurrencyAdapter(
     private fun createShimmerList(): List<Shimmer> {
         val mutableList = mutableListOf<Shimmer>()
         repeat(10) {
-            mutableList.add(Shimmer())
+            mutableList.add(Shimmer)
         }
         return mutableList.toList()
     }
@@ -97,14 +97,14 @@ class CurrencyAdapter(
     class ItemComparator : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
             return when {
-                oldItem is Currency && newItem is Currency -> oldItem == newItem
+                oldItem is Currency && newItem is Currency -> oldItem.name == newItem.name
                 else -> false
             }
         }
 
         override fun areContentsTheSame(oldItem: Any, newItem: Any): Boolean {
             return when {
-                oldItem is Currency && newItem is Currency -> oldItem.name == newItem.name
+                oldItem is Currency && newItem is Currency -> (oldItem as Currency) == newItem
                 else -> false
             }
         }
@@ -136,7 +136,7 @@ class CurrencyAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ItemHolder -> holder.bind(currencies[position], clickListener)
+            is ItemHolder -> holder.bind(currentList[position] as Currency, clickListener)
         }
     }
 
@@ -146,7 +146,10 @@ class CurrencyAdapter(
         payloads: MutableList<Any>
     ) {
         if(payloads.isNotEmpty() && holder is ItemHolder) {
-            holder.bind(currentList[position] as Currency, payloads)
+            holder.bind(
+                currentList[position] as Currency, payloads,
+                clickListener
+            )
         } else {
             super.onBindViewHolder(holder, position, payloads)
         }

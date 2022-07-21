@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.demonstrationapp.R
 import com.example.demonstrationapp.databinding.CurrencyItemDbBinding
 import com.example.domain.model.dto.FavoriteCurrencyDomain
 
@@ -19,6 +20,7 @@ class CurrencyDbAdapter(
             baseValue.text = rate.baseValue.toString()
             name.text = rate.name
             value.text = rate.value.toString()
+            icon.setImageResource(R.drawable.ic_star_blue)
             icon.setOnClickListener {
                 clickListener(rate.name, rate.baseName)
             }
@@ -35,13 +37,12 @@ class CurrencyDbAdapter(
 
     class ItemComparator: DiffUtil.ItemCallback<FavoriteCurrencyDomain>(){
         override fun areItemsTheSame(oldItem: FavoriteCurrencyDomain, newItem: FavoriteCurrencyDomain): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: FavoriteCurrencyDomain, newItem: FavoriteCurrencyDomain): Boolean {
             return oldItem.name == newItem.name
         }
 
+        override fun areContentsTheSame(oldItem: FavoriteCurrencyDomain, newItem: FavoriteCurrencyDomain): Boolean {
+            return oldItem == newItem
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {

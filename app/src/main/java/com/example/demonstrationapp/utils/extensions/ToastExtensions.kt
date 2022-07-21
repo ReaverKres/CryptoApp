@@ -4,7 +4,7 @@
 
 @file:Suppress("NOTHING_TO_INLINE", "unused")
 
-package com.example.demonstrationapp.extensions
+package com.example.demonstrationapp.utils.extensions
 
 import android.content.Context
 import android.widget.Toast

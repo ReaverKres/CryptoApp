@@ -24,8 +24,6 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import com.example.demonstrationapp.extensions.toast
-import com.example.demonstrationapp.utils.observeEvent
 
 /**
  * Base fragment to standardize and simplify initialization for this component.

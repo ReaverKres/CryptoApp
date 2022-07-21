@@ -1,14 +1,14 @@
 package com.example.demonstrationapp.ui.popular
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.demonstrationapp.base.BaseViewModel
-import com.example.domain.model.dto.Currencies
-import com.example.domain.usecase.DbKeysForSave
-import com.example.domain.usecase.GetRatesNetworkUseCase
-import com.example.domain.usecase.SaveRateInDbUseCase
+import com.example.domain.model.dto.CurrenciesDto
+import com.example.domain.model.dto.Currency
+import com.example.domain.model.dto.FavoriteCurrencyDomain
+import com.example.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -18,58 +18,113 @@ import javax.inject.Inject
 class PopularViewModel @Inject constructor(
     private val getRatesNetworkUseCase: GetRatesNetworkUseCase,
     private val saveRateInDbUseCase: SaveRateInDbUseCase,
+    private val getAllSavedRateDbUseCase: GetAllSavedRateDbUseCase,
+    private val deleteRateFromDbUseCase: DeleteRateFromDbUseCase
 ) : BaseViewModel() {
 
-    private val _data = MutableLiveData<ExchangeEvent>()
-    val data: LiveData<ExchangeEvent> = _data
+    private val _data = MutableStateFlow<ExchangeEvent>(ExchangeEvent.Empty)
+    val data: StateFlow<ExchangeEvent> = _data
+    private val dbCurrencies: MutableList<FavoriteCurrencyDomain> = mutableListOf()
+    var baseName = "USD"
 
     var selectedSort = 0
 
     init {
-        getExchangeData()
+        getExchangeData(baseName)
+        getSavedData()
+    }
+
+    private fun getSavedData() {
+        viewModelScope.launch {
+           getAllSavedRateDbUseCase.invoke(Unit).collectLatest {
+                dbCurrencies.clear()
+                dbCurrencies.addAll(it)
+            }
+        }
     }
 
     sealed class ExchangeEvent {
-        class Success(val result: Currencies) : ExchangeEvent()
+        class Success(val currenciesDto: CurrenciesDto) : ExchangeEvent()
         class Failure(val errorText: String) : ExchangeEvent()
         object Loading : ExchangeEvent()
         object Empty : ExchangeEvent()
     }
 
     fun getExchangeData(baseCurrency: String = "USD") {
+        baseName = baseCurrency
         viewModelScope.launch {
-            _data.postValue(ExchangeEvent.Loading)
+            _data.emit(ExchangeEvent.Loading)
+
             getRatesNetworkUseCase.invoke(baseCurrency)
                 .catch { e ->
-                    _data.postValue(ExchangeEvent.Failure(e.localizedMessage.orEmpty()))
+                    _data.emit(ExchangeEvent.Failure(e.localizedMessage.orEmpty()))
                 }
                 .collectLatest { exchange ->
+                    val mappedCurrency = exchange.getRatesForCurrency(baseCurrency)
+                    mappedCurrency.forEachIndexed { index, currency  ->
+                        dbCurrencies.forEach { dbCurrencies ->
+                            if(baseCurrency == dbCurrencies.baseName && currency.name == dbCurrencies.name) {
+                                currency.isSaved = true
+                            }
+                        }
+                    }
+
                     val successData = ExchangeEvent.Success(
-                        Currencies(exchange.baseCode, exchange.getRatesForCurrency(baseCurrency))
+                        CurrenciesDto(exchange.baseCode, mappedCurrency, exchange.conversionRates.keys)
                     )
-                    _data.postValue(successData)
+                    _data.emit(successData)
                 }
         }
     }
 
-    fun saveCurrency(name: String, value: Double) {
+    private fun updateItem(
+        currencies: MutableList<Currency>,
+        currency: Currency,
+        baseName: String
+    ) {
+        val selectedItemIndex = currencies.indexOf(currency)
+        val newItem = currency.copy(isSaved = currency.isSaved.not())
+        currencies.removeAt(selectedItemIndex)
+        currencies.add(selectedItemIndex, newItem)
+
+        _data.value = ExchangeEvent.Success(CurrenciesDto(
+            baseName,
+            currencies,
+        ))
+    }
+
+    fun saveCurrency(currency: Currency) {
         if (_data.value is ExchangeEvent.Success) {
-            val baseCode = (_data.value as ExchangeEvent.Success).result.baseName
+            val currencies = (_data.value as ExchangeEvent.Success).currenciesDto.currencies.toMutableList()
+            val baseName = (_data.value as ExchangeEvent.Success).currenciesDto.baseName
             viewModelScope.launch {
-                saveRateInDbUseCase.invoke(DbKeysForSave(name, value, baseCode)) {}
+                saveRateInDbUseCase.invoke(DbKeysForSave(currency.name, currency.value, baseName)) {}
+                updateItem(currencies, currency, baseName)
             }
+        }
+    }
+
+    fun deleteCurrency(currency: Currency) {
+        viewModelScope.launch {
+            val currencies = (_data.value as ExchangeEvent.Success).currenciesDto.currencies.toMutableList()
+            val baseName = (_data.value as ExchangeEvent.Success).currenciesDto.baseName
+            deleteRateFromDbUseCase.invoke(DbKeys(currency.name, baseName)) {}
+            updateItem(currencies, currency, baseName)
         }
     }
 
     fun sortList(sortType: Int) {
         if (_data.value is ExchangeEvent.Success) {
             selectedSort = sortType
-            val result = (_data.value as ExchangeEvent.Success).result
-            val sort = when (sortType) {
+            val result = (_data.value as ExchangeEvent.Success).currenciesDto
+            val sortedList = when (sortType) {
                 0, 1 -> result.currencies.sortedBy { it.name }
                 else -> result.currencies.sortedBy { it.value }.asReversed()
             }
-            _data.value = ExchangeEvent.Success(Currencies(result.baseName, sort))
+            _data.value = ExchangeEvent.Success(CurrenciesDto(
+                result.baseName,
+                sortedList,
+            ))
         }
     }
 }
