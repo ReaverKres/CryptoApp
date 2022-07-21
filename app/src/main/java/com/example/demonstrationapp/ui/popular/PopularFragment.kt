@@ -37,8 +37,8 @@ class PopularFragment : BaseFragment<FragmentPopularBinding>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = CurrencyAdapter { name, value ->
-            longToast(getString(R.string.save_db, name))
+        adapter = CurrencyAdapter { rate ->
+            longToast(getString(R.string.save_db, rate.name))
 //                viewModel.saveCurrency(name,value)
         }
         binding.recycler.adapter = adapter
